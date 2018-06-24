@@ -14,7 +14,7 @@ function main() {
             var fileNameOrig = url.split('\\').pop().split('/').pop();
             var fileName = fileNameOrig.split('.')[0] + ".json";
             zip.file(fileName).async("string").then(function(response) {
-                console.log(response);
+                document.write(response);
             });
         });
     });        
