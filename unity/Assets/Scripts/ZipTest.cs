@@ -6,7 +6,7 @@ using SimpleJSON;
 using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.Zip;
 
-public class ZipTest1 : MonoBehaviour {
+public class ZipTest : MonoBehaviour {
 
 	public string readFileName;
 
@@ -23,7 +23,7 @@ public class ZipTest1 : MonoBehaviour {
 
 		string ext = Path.GetExtension(readFileName).ToLower();
 		Debug.Log("Found extension " + ext);
-		if (ext == ".latk") {
+		if (ext == ".latk" || ext == ".zip") {
 			useZip = true;
 		} else {
 			useZip = false;
@@ -57,17 +57,36 @@ public class ZipTest1 : MonoBehaviour {
 		Debug.Log ("+++ File reading finished. Begin parsing...");
 		yield return new WaitForSeconds (consoleUpdateInterval);
 
-		if (useZip) {
-			MemoryStream streamCompressed = new MemoryStream(www.bytes);
-			ZipInputStream streamUncompressed = new ZipInputStream(streamCompressed);
-			string json = streamUncompressed.ToString();
-			Debug.Log(json);
-			jsonNode = JSON.Parse(json);
+        if (useZip) {
+            jsonNode = getJsonFromZip(www.bytes);
 		} else {
 			jsonNode = JSON.Parse(www.text);
 		}
 
-		Debug.Log(jsonNode["grease_pencil"][0]["layers"][0]["frames"][0]["strokes"][0]["color"]);
-	}
+        Debug.Log(jsonNode["grease_pencil"][0]["layers"][0]["frames"][0]["strokes"][0]["color"]);
+    }
+
+    JSONNode getJsonFromZip(byte[] bytes) {
+        // https://gist.github.com/r2d2rigo/2bd3a1cafcee8995374f
+
+        MemoryStream fileStream = new MemoryStream(bytes, 0, bytes.Length);
+        ZipFile zipFile = new ZipFile(fileStream);
+
+        foreach (ZipEntry entry in zipFile) {
+            if (Path.GetExtension(entry.Name).ToLower() == ".json") {
+                Stream zippedStream = zipFile.GetInputStream(entry);
+                StreamReader read = new StreamReader(zippedStream, true);
+                string json = read.ReadToEnd();
+                Debug.Log(json);
+                return JSON.Parse(json);
+            }
+        }
+
+        return null;
+    }
+
+    void saveStringAsZip(string s) {
+        // TODO
+    }
 
 }

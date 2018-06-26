@@ -140,7 +140,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 987a26fa9aca79848b0c9f8ec3888ba7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  readFileName: StreamingAssets/untitled.zip
+  readFileName: StreamingAssets/jellyfish_onelayer.latk
 --- !u!4 &670786189
 Transform:
   m_ObjectHideFlags: 0
