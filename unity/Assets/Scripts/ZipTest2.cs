@@ -8,7 +8,7 @@ using UnityEngine;
 using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.Zip;
 
-public class ZipTest : MonoBehaviour {
+public class ZipTest2 : MonoBehaviour {
 
     public string url;
 

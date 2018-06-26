@@ -6,7 +6,7 @@ using SimpleJSON;
 using ICSharpCode.SharpZipLib.Core;
 using ICSharpCode.SharpZipLib.Zip;
 
-public class TestLoader : MonoBehaviour {
+public class ZipTest1 : MonoBehaviour {
 
 	public string readFileName;
 
