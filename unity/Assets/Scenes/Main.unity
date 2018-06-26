@@ -141,6 +141,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   readFileName: StreamingAssets/jellyfish_onelayer.latk
+  writeFileName: test.latk
 --- !u!4 &670786189
 Transform:
   m_ObjectHideFlags: 0

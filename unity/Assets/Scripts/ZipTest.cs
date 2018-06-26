@@ -9,6 +9,7 @@ using ICSharpCode.SharpZipLib.Zip;
 public class ZipTest : MonoBehaviour {
 
 	public string readFileName;
+    public string writeFileName;
 
 	private float consoleUpdateInterval = 0f;
 	private JSONNode jsonNode;
@@ -64,6 +65,8 @@ public class ZipTest : MonoBehaviour {
 		}
 
         Debug.Log(jsonNode["grease_pencil"][0]["layers"][0]["frames"][0]["strokes"][0]["color"]);
+
+        saveJsonAsZip(jsonNode.ToString());
     }
 
     JSONNode getJsonFromZip(byte[] bytes) {
@@ -85,8 +88,57 @@ public class ZipTest : MonoBehaviour {
         return null;
     }
 
-    void saveStringAsZip(string s) {
-        // TODO
+    void saveJsonAsZip(string s) {
+        // https://stackoverflow.com/questions/1879395/how-do-i-generate-a-stream-from-a-string
+        // https://github.com/icsharpcode/SharpZipLib/wiki/Zip-Samples
+        // https://stackoverflow.com/questions/8624071/save-and-load-memorystream-to-from-a-file
+
+        MemoryStream memStreamIn = new MemoryStream();
+        StreamWriter writer = new StreamWriter(memStreamIn);
+        writer.Write(s);
+        writer.Flush();
+        memStreamIn.Position = 0;
+
+        MemoryStream outputMemStream = new MemoryStream();
+        ZipOutputStream zipStream = new ZipOutputStream(outputMemStream);
+
+        zipStream.SetLevel(3); //0-9, 9 being the highest level of compression
+
+        string writeFileNameMinusExtension = "";
+        string[] nameTemp = writeFileName.Split('.');
+        for (int i=0; i<nameTemp.Length-1; i++) {
+            writeFileNameMinusExtension += nameTemp[i];
+        }
+
+        ZipEntry newEntry = new ZipEntry(writeFileNameMinusExtension + ".json");
+        newEntry.DateTime = System.DateTime.Now;
+
+        zipStream.PutNextEntry(newEntry);
+
+        StreamUtils.Copy(memStreamIn, zipStream, new byte[4096]);
+        zipStream.CloseEntry();
+
+        zipStream.IsStreamOwner = false;    // False stops the Close also Closing the underlying stream.
+        zipStream.Close();          // Must finish the ZipOutputStream before using outputMemStream.
+
+        outputMemStream.Position = 0;
+
+        using (FileStream file = new FileStream(writeFileName, FileMode.Create, System.IO.FileAccess.Write)) {
+            byte[] bytes = new byte[outputMemStream.Length];
+            outputMemStream.Read(bytes, 0, (int)outputMemStream.Length);
+            file.Write(bytes, 0, bytes.Length);
+            outputMemStream.Close();
+        }
+
+        /*
+        // Alternative outputs:
+        // ToArray is the cleaner and easiest to use correctly with the penalty of duplicating allocated memory.
+        byte[] byteArrayOut = outputMemStream.ToArray();
+
+        // GetBuffer returns a raw buffer raw and so you need to account for the true length yourself.
+        byte[] byteArrayOut = outputMemStream.GetBuffer();
+        long len = outputMemStream.Length;
+        */
     }
 
 }
